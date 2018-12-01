@@ -1,0 +1,6 @@
+framework module Pods_Novagraph_Tests {
+  umbrella header "Pods-Novagraph_Tests-umbrella.h"
+
+  export *
+  module * { export * }
+}
