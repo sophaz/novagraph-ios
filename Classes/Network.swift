@@ -7,11 +7,11 @@
 
 import Foundation
 
-enum HTTPMethod {
+public enum HTTPMethod {
     case get, post, delete
 }
 
-struct NetworkRequest {
+public struct NetworkRequest {
 
     let method: HTTPMethod
     let path: String
@@ -29,14 +29,14 @@ struct NetworkRequest {
 
 }
 
-class Network {
+public class Network {
 
-    static let shared = Network()
+    public static let shared = Network()
 
-    func send(request: NetworkRequest, completion: ((Any?, Error?) -> Void)?) {
+    public func send(request: NetworkRequest, completion: ((Any?, Error?) -> Void)?) {
     }
 
-    class func fetchImage(urlString: String, completionHandler: @escaping ((UIImage?, Error?) -> Void)) {
+    public class func fetchImage(urlString: String, completionHandler: @escaping ((UIImage?, Error?) -> Void)) {
         guard let url = URL(string: urlString) else {
             return
         }
