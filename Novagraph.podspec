@@ -29,7 +29,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '10.0'
 
-  s.source_files = 'Novagraph/Classes/**/*'
+  s.source_files = 'Classes/**'
   
   # s.resource_bundles = {
   #   'Novagraph' => ['Novagraph/Assets/*.png']
