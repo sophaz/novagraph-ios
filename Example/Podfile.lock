@@ -1,5 +1,5 @@
 PODS:
-  - Novagraph (0.1.0)
+  - Novagraph (1.0.6)
 
 DEPENDENCIES:
   - Novagraph (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Novagraph: 15187ad4ef641f1ae21d130be0bafd19efb81e4f
+  Novagraph: 7ee1115bac9cb83642b5ac668386cdf80bcf8a7d
 
 PODFILE CHECKSUM: 1127fefd01afaf90c7daa9c2ac3c599c451f353b
 
