@@ -9,11 +9,11 @@ import Foundation
 import UIKit
 import CoreData
 
-class CoreDataManager: NSObject {
+public class CoreDataManager: NSObject {
 
     var context: NSManagedObjectContext!
-    static let shared: CoreDataManager = CoreDataManager()
-    static var containerName: String!
+    public static let shared: CoreDataManager = CoreDataManager()
+    public static var containerName: String!
 
     class func setUpCoreDataStack(retry: Bool = false) {
         let container = NSPersistentContainer(name: self.containerName)
