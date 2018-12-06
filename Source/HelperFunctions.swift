@@ -7,9 +7,9 @@
 
 import Foundation
 
-extension Dictionary {
+public extension Dictionary {
 
-    func jsonStringify() -> String {
+    public func jsonStringify() -> String {
         if JSONSerialization.isValidJSONObject(self) {
             if let data = try? JSONSerialization.data(withJSONObject: self, options: .init(rawValue: 0)) {
                 if let string = String(data: data, encoding: .utf8) {
