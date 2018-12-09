@@ -11,11 +11,11 @@ import CoreData
 
 public class CoreDataManager: NSObject {
 
-    var context: NSManagedObjectContext!
+    public var context: NSManagedObjectContext!
     public static let shared: CoreDataManager = CoreDataManager()
     public static var containerName: String!
 
-    class func setUpCoreDataStack(retry: Bool = false) {
+    public class func setUpCoreDataStack(retry: Bool = false) {
         let container = NSPersistentContainer(name: self.containerName)
         container.loadPersistentStores { (_, error) in
             guard error == nil else {
@@ -32,7 +32,7 @@ public class CoreDataManager: NSObject {
         }
     }
 
-    class func resetStore() {
+    public class func resetStore() {
         let container = NSPersistentContainer(name: self.containerName)
         container.loadPersistentStores { (store, _) in
             let coordinator = container.persistentStoreCoordinator
