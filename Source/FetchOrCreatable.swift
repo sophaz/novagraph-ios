@@ -9,25 +9,26 @@ import Foundation
 import UIKit
 import CoreData
 
-protocol HasID {
+public protocol HasID {
     var id: String { get set }
 }
 
-protocol Parseable {
+public protocol Parseable {
     func parse(data: [String: Any])
 }
 
-protocol FetchOrCreatable: class, HasID, Parseable {
+public protocol FetchOrCreatable: class, HasID, Parseable {
 
     associatedtype T: NSManagedObject, HasID, Parseable
     static func fetch(with ID: String) -> T?
     static func fetchOrCreate(with dict: [String: Any]) -> T?
     static func fetchOrCreate(with ID: String) -> T
+
 }
 
-extension FetchOrCreatable {
+public extension FetchOrCreatable {
 
-    static func fetch(with ID: String) -> T? {
+    public static func fetch(with ID: String) -> T? {
         let className = String(describing: type(of: self)).split(separator: ".").first ?? ""
 
         let request = NSFetchRequest<T>(entityName: String(className))
@@ -40,7 +41,7 @@ extension FetchOrCreatable {
         return nil
     }
 
-    @discardableResult static func fetchOrCreate(with ID: String) -> T {
+    @discardableResult public static func fetchOrCreate(with ID: String) -> T {
         if let object = self.fetch(with: ID) {
             return object
         } else {
@@ -52,7 +53,7 @@ extension FetchOrCreatable {
         }
     }
 
-    @discardableResult static func fetchOrCreate(with dict: [String: Any]) -> T? {
+    @discardableResult public static func fetchOrCreate(with dict: [String: Any]) -> T? {
         if let id = dict["id"] as? String {
             let object = self.fetchOrCreate(with: id)
             object.parse(data: dict)
@@ -61,9 +62,10 @@ extension FetchOrCreatable {
         return nil
     }
 
-    static func createNew() -> T {
+    public static func createNew() -> T {
         let className = String(describing: type(of: self)).split(separator:".").first ?? ""
         let newT = NSEntityDescription.insertNewObject(forEntityName: String(className), into: CoreDataManager.shared.context) as! T
         return newT
     }
+
 }
