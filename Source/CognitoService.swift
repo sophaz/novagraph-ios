@@ -9,6 +9,7 @@ import AWSCognito
 import AWSCognitoIdentityProvider
 
 public struct ServerConfigurationDetails {
+
     let region: AWSRegionType
     let clientID: String
     let clientSecret: String
@@ -24,6 +25,7 @@ public struct ServerConfigurationDetails {
         self.poolID = poolID
         self.poolKey = poolKey
     }
+    
 }
 
 public class CognitoService {
