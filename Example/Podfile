@@ -4,4 +4,6 @@ platform :ios, '10.0'
 target 'Novagraph_Example' do
   use_frameworks!
   pod 'Novagraph', :path => '../'
+  pod 'AWSCognito', '~> 2.8.2'
+  pod 'AWSCognitoIdentityProvider', '~> 2.8.2'
 end

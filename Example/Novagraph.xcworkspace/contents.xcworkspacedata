@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:../Source/CognitoService.swift">
+   </FileRef>
+   <FileRef
       location = "group:Novagraph.xcodeproj">
    </FileRef>
    <FileRef

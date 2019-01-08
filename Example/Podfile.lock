@@ -1,16 +1,42 @@
 PODS:
-  - Novagraph (1.0.6)
+  - Alamofire (4.8.0)
+  - AWSCognito (2.8.2):
+    - AWSCore (= 2.8.2)
+  - AWSCognitoIdentityProvider (2.8.2):
+    - AWSCognitoIdentityProviderASF (= 1.0.1)
+    - AWSCore (= 2.8.2)
+  - AWSCognitoIdentityProviderASF (1.0.1)
+  - AWSCore (2.8.2)
+  - Novagraph (1.0.10):
+    - Alamofire
+    - AWSCognito (~> 2.8.2)
+    - AWSCognitoIdentityProvider (~> 2.8.2)
 
 DEPENDENCIES:
+  - AWSCognito (~> 2.8.2)
+  - AWSCognitoIdentityProvider (~> 2.8.2)
   - Novagraph (from `../`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Alamofire
+    - AWSCognito
+    - AWSCognitoIdentityProvider
+    - AWSCognitoIdentityProviderASF
+    - AWSCore
 
 EXTERNAL SOURCES:
   Novagraph:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Novagraph: 7ee1115bac9cb83642b5ac668386cdf80bcf8a7d
+  Alamofire: 3ec537f71edc9804815215393ae2b1a8ea33a844
+  AWSCognito: 8f9d82b91dc757669471d7174b7517a455f5d493
+  AWSCognitoIdentityProvider: 0d51cf765c70dd180bad7683dabb7942c6ada768
+  AWSCognitoIdentityProviderASF: f94f1a502e72ef3d0a1de93e10bf7a79c8698118
+  AWSCore: b6448752e992345082d7bad29d86e4839b72b4ba
+  Novagraph: 55a5b38153bc5b0cdee9922e3827f304bb6e67bc
 
-PODFILE CHECKSUM: 1127fefd01afaf90c7daa9c2ac3c599c451f353b
+PODFILE CHECKSUM: 416a923f11fc01933d6b6e159518e4b6006f8df5
 
 COCOAPODS: 1.5.3
