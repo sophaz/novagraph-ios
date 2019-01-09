@@ -33,6 +33,15 @@ public struct AuthConfigurationDetails {
     let signOutRedirectUri: String
     let webDomain: String
     let AWSCognitoAuthKey: String
+
+    public init(scopes: Set<String>, signInRedirectUri: String, signOutRedirectUri: String,
+                webDomain: String, AWSCognitoAuthKey: String) {
+        self.scopes = scopes
+        self.signInRedirectUri = signInRedirectUri
+        self.signOutRedirectUri = signOutRedirectUri
+        self.webDomain = webDomain
+        self.AWSCognitoAuthKey = AWSCognitoAuthKey
+    }
 }
 
 public class CognitoService {
