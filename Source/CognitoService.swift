@@ -50,11 +50,13 @@ public class CognitoService {
     public let pool: AWSCognitoIdentityUserPool
 
     public var fbAuth: AWSCognitoAuth?
+    public var googleAuth: AWSCognitoAuth?
 
-    // User must set these before accessing the singleton
+    // User must set these before accessing the singleton to configure pool
     private static var serverConfigDetails: ServerConfigurationDetails?
-    // User can optionally set this to configure FB auth
+    // User can optionally set these to configure FB/Google auth
     private static var fbConfigDetails: AuthConfigurationDetails?
+    private static var googleConfigDetails: AuthConfigurationDetails?
 
     private init?() {
         guard let serverDetails = CognitoService.serverConfigDetails else { return nil }
@@ -80,6 +82,20 @@ public class CognitoService {
                                                             userPoolIdForEnablingASF: serverDetails.CognitoPoolID)
             AWSCognitoAuth.registerCognitoAuth(with: fbConfig, forKey: fbDetails.AWSCognitoAuthKey)
             self.fbAuth = AWSCognitoAuth(forKey: fbDetails.AWSCognitoAuthKey)
+        }
+
+        if let googleDetails = CognitoService.googleConfigDetails {
+            let config = AWSCognitoAuthConfiguration(appClientId: serverDetails.CognitoClientID,
+                                                       appClientSecret: serverDetails.CognitoClientSecret,
+                                                       scopes: googleDetails.scopes,
+                                                       signInRedirectUri: googleDetails.signInRedirectUri,
+                                                       signOutRedirectUri: googleDetails.signOutRedirectUri,
+                                                       webDomain: googleDetails.webDomain,
+                                                       identityProvider: "Google",
+                                                       idpIdentifier: nil,
+                                                       userPoolIdForEnablingASF: serverDetails.CognitoPoolID)
+            AWSCognitoAuth.registerCognitoAuth(with: config, forKey: googleDetails.AWSCognitoAuthKey)
+            self.fbAuth = AWSCognitoAuth(forKey: googleDetails.AWSCognitoAuthKey)
         }
     }
 
