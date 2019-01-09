@@ -6,57 +6,72 @@
 //
 
 import AWSCognito
+import AWSCognitoAuth
 import AWSCognitoIdentityProvider
 
 public struct ServerConfigurationDetails {
+    let AWSRegion: AWSRegionType
+    let CognitoClientID: String
+    let CognitoClientSecret: String
+    let CognitoPoolID: String
+    let AWSCognitoPoolKey: String
 
-    let region: AWSRegionType
-    let clientID: String
-    let clientSecret: String
-    let poolID: String
-    let poolKey: String
-
-    public init(region: AWSRegionType,
-                clientID: String, clientSecret: String,
-                poolID: String, poolKey: String) {
-        self.region = region
-        self.clientID = clientID
-        self.clientSecret = clientSecret
-        self.poolID = poolID
-        self.poolKey = poolKey
+    public init(AWSRegion: AWSRegionType,
+                CognitoClientID: String, CognitoClientSecret: String,
+                CognitoPoolID: String, AWSCognitoPoolKey: String) {
+        self.AWSRegion = AWSRegion
+        self.CognitoClientID = CognitoClientID
+        self.CognitoClientSecret = CognitoClientSecret
+        self.CognitoPoolID = CognitoPoolID
+        self.AWSCognitoPoolKey = AWSCognitoPoolKey
     }
-    
+}
+
+public struct AuthConfigurationDetails {
+    let scopes: Set<String>
+    let signInRedirectUri: String
+    let signOutRedirectUri: String
+    let webDomain: String
+    let AWSCognitoAuthKey: String
 }
 
 public class CognitoService {
-
     public static let shared = CognitoService()
 
     public let pool: AWSCognitoIdentityUserPool
 
-    private static var CognitoClientID = ""
-    private static var CognitoPoolID = ""
-    private static var AWSRegion: AWSRegionType = .Unknown
-    private static var CognitoClientSecret = ""
-    private static var AWSCognitoPoolKey = ""
+    public var fbAuth: AWSCognitoAuth?
 
-    private init() {
-        let serviceConfig = AWSServiceConfiguration(region: CognitoService.AWSRegion, credentialsProvider: nil)
-        let poolConfig = AWSCognitoIdentityUserPoolConfiguration(clientId: CognitoService.CognitoClientID,
-                                                                 clientSecret: CognitoService.CognitoClientSecret,
-                                                                 poolId: CognitoService.CognitoPoolID)
+    // User must set these before accessing the singleton
+    private static var serverConfigDetails: ServerConfigurationDetails?
+    // User can optionally set this to configure FB auth
+    private static var fbConfigDetails: AuthConfigurationDetails?
+
+    private init?() {
+        guard let serverDetails = CognitoService.serverConfigDetails else { return nil }
+
+        let serviceConfig = AWSServiceConfiguration(region: serverDetails.AWSRegion, credentialsProvider: nil)
+        let poolConfig = AWSCognitoIdentityUserPoolConfiguration(clientId: serverDetails.CognitoClientID,
+                                                                 clientSecret: serverDetails.CognitoClientSecret,
+                                                                 poolId: serverDetails.CognitoPoolID)
         AWSCognitoIdentityUserPool.register(with: serviceConfig,
                                             userPoolConfiguration: poolConfig,
-                                            forKey: CognitoService.AWSCognitoPoolKey)
-        self.pool = AWSCognitoIdentityUserPool(forKey: CognitoService.AWSCognitoPoolKey)
-    }
+                                            forKey: serverDetails.AWSCognitoPoolKey)
+        self.pool = AWSCognitoIdentityUserPool(forKey: serverDetails.AWSCognitoPoolKey)
 
-    public class func configure(with serverConfigurationDetails: ServerConfigurationDetails) {
-        CognitoService.CognitoClientID = serverConfigurationDetails.clientID
-        CognitoService.CognitoPoolID = serverConfigurationDetails.poolID
-        CognitoService.CognitoClientSecret = serverConfigurationDetails.clientSecret
-        CognitoService.AWSCognitoPoolKey = serverConfigurationDetails.poolKey
-        CognitoService.AWSRegion = serverConfigurationDetails.region
+        if let fbDetails = CognitoService.fbConfigDetails {
+            let fbConfig = AWSCognitoAuthConfiguration(appClientId: serverDetails.CognitoClientID,
+                                                            appClientSecret: serverDetails.CognitoClientSecret,
+                                                            scopes: fbDetails.scopes,
+                                                            signInRedirectUri: fbDetails.signInRedirectUri,
+                                                            signOutRedirectUri: fbDetails.signOutRedirectUri,
+                                                            webDomain: fbDetails.webDomain,
+                                                            identityProvider: "Facebook",
+                                                            idpIdentifier: nil,
+                                                            userPoolIdForEnablingASF: serverDetails.CognitoPoolID)
+            AWSCognitoAuth.registerCognitoAuth(with: fbConfig, forKey: fbDetails.AWSCognitoAuthKey)
+            self.fbAuth = AWSCognitoAuth(forKey: fbDetails.AWSCognitoAuthKey)
+        }
     }
 
     public func currentAccessToken(_ completionHandler: @escaping (AWSCognitoIdentityUserSessionToken?) -> Void) {
@@ -66,5 +81,4 @@ public class CognitoService {
             }
         }
     }
-
 }

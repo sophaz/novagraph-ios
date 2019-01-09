@@ -6,4 +6,5 @@ target 'Novagraph_Example' do
   pod 'Novagraph', :path => '../'
   pod 'AWSCognito', '~> 2.8.2'
   pod 'AWSCognitoIdentityProvider', '~> 2.8.2'
+  pod 'AWSCognitoAuth', '~> 2.8.2'
 end
