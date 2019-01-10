@@ -39,5 +39,8 @@ Pod::Spec.new do |s|
   # s.frameworks = 'UIKit', 'MapKit'
 
   s.dependency 'Alamofire'
+  s.dependency 'AWSCognito', '~> 2.8.2'
+  s.dependency 'AWSCognitoIdentityProvider', '~> 2.8.2'
+  s.dependency 'AWSCognitoAuth', '~> 2.8.2'
 
 end
