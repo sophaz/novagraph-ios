@@ -14,7 +14,7 @@ struct NovaRequest {
     let requiresAuth: Bool
 
     var headers: HTTPHeaders
-    var params: [String: Any]
+    var params: Parameters
 
     static var defaultDomain: String = ""
 
