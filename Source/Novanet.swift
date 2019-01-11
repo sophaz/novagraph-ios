@@ -7,36 +7,59 @@
 
 import Alamofire
 
-struct NetworkRequest {
+struct NovaRequest {
     let method: HTTPMethod
     let path: String
-    let params: [String: Any]
     let domain: String
+    let requiresAuth: Bool
+
+    var headers: HTTPHeaders = ["Content-Type": "application/json"]
+    var params: [String: Any]
 
     static var defaultDomain: String = ""
 
-    init(method: HTTPMethod, path: String, params: [String: Any] = [:], domain: String = NetworkRequest.defaultDomain) {
+    init(method: HTTPMethod,
+         path: String,
+         params: [String: Any] = [:],
+         domain: String = NovaRequest.defaultDomain,
+         requiresAuth: Bool = true) {
         self.method = method
         self.path = path
         self.params = params
         self.domain = domain
+        self.requiresAuth = requiresAuth
     }
 }
 
 class Novanet {
-    func send(request: NetworkRequest, completion: ((Any?, Error?) -> Void)?) {
+    func send(request: NovaRequest, completion: ((Any?, Error?) -> Void)?) {
+        var request = request
+        if request.requiresAuth {
+            CognitoService.shared?.currentAccessToken({ (token) in
+                guard let accessToken = token else {
+                    completion?(nil, NSError())
+                    return
+                }
+                request.headers["X-Token"] = accessToken.tokenString
+                self.sendAlamoRequest(request: request, completion: { (value, error) in
+                    completion?(value, error)
+                })
+            })
+        } else {
+            self.sendAlamoRequest(request: request, completion: { (value, error) in
+                completion?(value, error)
+            })
+        }
+    }
+
+    private func sendAlamoRequest(request: NovaRequest, completion: ((Any?, Error?) -> Void)?) {
         let urlString = "\(request.domain)/\(request.path)"
-        CognitoService.shared?.currentAccessToken({ (token) in
-            guard let accessToken = token else {
-                completion?(nil, NSError())
-                return
-            }
-            let header: HTTPHeaders = ["X-Token": accessToken.tokenString, "Content-Type": "application/json"]
-            let queryDict = request.params
-            Alamofire.request(urlString, method: request.method, parameters: queryDict,
-                encoding: JSONEncoding.default, headers: header).responseJSON { response in
-                    completion?(response.result.value, response.error)
-            }
-        })
+        Alamofire.request(urlString,
+                          method: request.method,
+                          parameters: request.params,
+                          encoding: JSONEncoding.default,
+                          headers: request.headers).responseJSON { response in
+                            completion?(response.result.value, response.error)
+        }
     }
 }
