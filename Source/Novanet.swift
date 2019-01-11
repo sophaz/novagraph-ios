@@ -43,18 +43,18 @@ class Novanet {
                     return
                 }
                 request.headers["X-Token"] = accessToken.tokenString
-                self.sendAlamoRequest(request: request, completion: { (value, error) in
+                self.sendAlamo(request: request, completion: { (value, error) in
                     completion?(value, error)
                 })
             })
         } else {
-            self.sendAlamoRequest(request: request, completion: { (value, error) in
+            self.sendAlamo(request: request, completion: { (value, error) in
                 completion?(value, error)
             })
         }
     }
 
-    private func sendAlamoRequest(request: NovaRequest, completion: ((Any?, Error?) -> Void)?) {
+    private func sendAlamo(request: NovaRequest, completion: ((Any?, Error?) -> Void)?) {
         let urlString = "\(request.domain)/\(request.path)"
         Alamofire.request(urlString,
                           method: request.method,
