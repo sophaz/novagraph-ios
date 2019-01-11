@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
                        DESC
 
   s.homepage         = 'https://github.com/sophaz/novagraph-ios'
-  s.swift_version    = '4.0'
+  s.swift_version    = '4.2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Sophie Novati' => 'sophie@buildschool.com' }
   s.source           = { :git => 'https://github.com/sophaz/novagraph-ios.git', :tag => s.version.to_s }
