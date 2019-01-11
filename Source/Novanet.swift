@@ -13,7 +13,7 @@ struct NovaRequest {
     let domain: String
     let requiresAuth: Bool
 
-    var headers: HTTPHeaders = ["Content-Type": "application/json"]
+    var headers: HTTPHeaders
     var params: [String: Any]
 
     static var defaultDomain: String = ""
@@ -22,12 +22,14 @@ struct NovaRequest {
          path: String,
          params: [String: Any] = [:],
          domain: String = NovaRequest.defaultDomain,
+         headers: HTTPHeaders =  ["Content-Type": "application/json"],
          requiresAuth: Bool = true) {
         self.method = method
         self.path = path
         self.params = params
         self.domain = domain
         self.requiresAuth = requiresAuth
+        self.headers = headers
     }
 }
 
