@@ -22,7 +22,7 @@ struct NovaRequest {
          path: String,
          params: Parameters = [:],
          domain: String = NovaRequest.defaultDomain,
-         headers: HTTPHeaders =  ["Content-Type": "application/json"],
+         headers: HTTPHeaders = ["Content-Type": "application/json"],
          requiresAuth: Bool = true) {
         self.method = method
         self.path = path
