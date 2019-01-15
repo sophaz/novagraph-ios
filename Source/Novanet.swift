@@ -7,18 +7,18 @@
 
 import Alamofire
 
-struct NovaRequest {
+public struct NovaRequest {
     let method: HTTPMethod
     let path: String
     let domain: String
     let requiresAuth: Bool
 
-    var headers: HTTPHeaders
-    var params: Parameters
+    public var headers: HTTPHeaders
+    public var params: Parameters
 
-    static var defaultDomain: String = ""
+    public static var defaultDomain: String = ""
 
-    init(method: HTTPMethod,
+    public init(method: HTTPMethod,
          path: String,
          params: Parameters = [:],
          domain: String = NovaRequest.defaultDomain,
@@ -33,8 +33,10 @@ struct NovaRequest {
     }
 }
 
-class Novanet {
-    func send(request: NovaRequest, completion: ((Any?, Error?) -> Void)?) {
+public class Novanet {
+    public static let shared = Novanet()
+
+    public func send(request: NovaRequest, completion: ((Any?, Error?) -> Void)?) {
         var request = request
         if request.requiresAuth {
             CognitoService.shared?.currentAccessToken({ (token) in
