@@ -1,15 +1,15 @@
 PODS:
   - Alamofire (4.8.0)
-  - AWSCognito (2.8.2):
-    - AWSCore (= 2.8.2)
-  - AWSCognitoAuth (2.8.2):
+  - AWSCognito (2.8.3):
+    - AWSCore (= 2.8.3)
+  - AWSCognitoAuth (2.8.3):
     - AWSCognitoIdentityProviderASF (= 1.0.1)
-  - AWSCognitoIdentityProvider (2.8.2):
+  - AWSCognitoIdentityProvider (2.8.3):
     - AWSCognitoIdentityProviderASF (= 1.0.1)
-    - AWSCore (= 2.8.2)
+    - AWSCore (= 2.8.3)
   - AWSCognitoIdentityProviderASF (1.0.1)
-  - AWSCore (2.8.2)
-  - Novagraph (1.0.11):
+  - AWSCore (2.8.3)
+  - Novagraph (1.0.12):
     - Alamofire
     - AWSCognito (~> 2.8.2)
     - AWSCognitoAuth (~> 2.8.2)
@@ -36,12 +36,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: 3ec537f71edc9804815215393ae2b1a8ea33a844
-  AWSCognito: 8f9d82b91dc757669471d7174b7517a455f5d493
-  AWSCognitoAuth: 8550294494d488bd4b2c071ce4df31abda39f902
-  AWSCognitoIdentityProvider: 0d51cf765c70dd180bad7683dabb7942c6ada768
+  AWSCognito: 4c6e5c0ca13174991c2405cfaa177872e7477d28
+  AWSCognitoAuth: 69c2152dc585869c9108d0c754275b17423e5624
+  AWSCognitoIdentityProvider: 5156c6b9c0c3ac10120a7a54e013ec5301a5098b
   AWSCognitoIdentityProviderASF: f94f1a502e72ef3d0a1de93e10bf7a79c8698118
-  AWSCore: b6448752e992345082d7bad29d86e4839b72b4ba
-  Novagraph: 18dfbd8be798fad13f9c2dcd1da419d16044e4be
+  AWSCore: 9e8204b138a59342a88c62142d6d79491d66ce91
+  Novagraph: dde6f0126b87da2f8b3a1d672cc9a2786358a3c1
 
 PODFILE CHECKSUM: b4a550862164c52dc014751a729d3e2f7712bb81
 
