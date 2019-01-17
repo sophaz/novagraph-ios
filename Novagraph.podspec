@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Novagraph'
-  s.version          = '1.0.14'
+  s.version          = '1.0.15'
   s.summary          = 'Utilies to access Novagraph and work with using Core Data.'
 
 # This description is used to generate tags and improve search results.
