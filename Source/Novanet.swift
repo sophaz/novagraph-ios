@@ -12,6 +12,7 @@ public struct NovaRequest {
     let path: String
     let domain: String
     let requiresAuth: Bool
+    let encoding: ParameterEncoding
 
     public var headers: HTTPHeaders
     public var params: Parameters
@@ -30,6 +31,7 @@ public struct NovaRequest {
         self.domain = domain
         self.requiresAuth = requiresAuth
         self.headers = headers
+        self.encoding = method == .get ? URLEncoding.default : JSONEncoding.default
     }
 }
 
@@ -61,7 +63,7 @@ public class Novanet {
         Alamofire.request(urlString,
                           method: request.method,
                           parameters: request.params,
-                          encoding: JSONEncoding.default,
+                          encoding: request.encoding,
                           headers: request.headers).responseJSON { response in
                             completion?(response.result.value, response.error)
         }
