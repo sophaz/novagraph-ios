@@ -53,10 +53,10 @@ public class CognitoService {
     public var googleAuth: AWSCognitoAuth?
 
     // User must set these before accessing the singleton to configure pool
-    private static var serverConfigDetails: ServerConfigurationDetails?
+    public static var serverConfigDetails: ServerConfigurationDetails?
     // User can optionally set these to configure FB/Google auth
-    private static var fbConfigDetails: AuthConfigurationDetails?
-    private static var googleConfigDetails: AuthConfigurationDetails?
+    public static var fbConfigDetails: AuthConfigurationDetails?
+    public static var googleConfigDetails: AuthConfigurationDetails?
 
     private init?() {
         guard let serverDetails = CognitoService.serverConfigDetails else { return nil }
