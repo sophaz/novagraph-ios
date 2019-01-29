@@ -68,8 +68,8 @@ public extension FetchOrCreatable {
         guard let dict = data as? [String: Any], let objectsDict = dict["objects"] as? [String: Any] else { return [] }
         for (_, value) in objectsDict {
             guard let objectDict = value as? [String: Any] else { continue }
-            if let myObject = self.fetchOrCreate(with: objectDict) {
-                objects.append(myObject)
+            if let object = self.fetchOrCreate(with: objectDict) {
+                objects.append(object)
             }
         }
         return objects
