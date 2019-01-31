@@ -23,6 +23,7 @@ public protocol FetchOrCreatable: class, HasID, Parseable {
     static func fetch(with ID: String) -> T?
     static func fetchOrCreate(with dict: [String: Any]) -> T?
     static func fetchOrCreate(with ID: String) -> T
+    static func fetchOrCreateObjects(from data: Any?) -> [T]
 
 }
 
@@ -60,6 +61,18 @@ public extension FetchOrCreatable {
             return object
         }
         return nil
+    }
+
+    @discardableResult public static func fetchOrCreateObjects(from data: Any?) -> [T] {
+        var objects: [T] = []
+        guard let dict = data as? [String: Any], let objectsDict = dict["objects"] as? [String: Any] else { return [] }
+        for (_, value) in objectsDict {
+            guard let objectDict = value as? [String: Any] else { continue }
+            if let object = self.fetchOrCreate(with: objectDict) {
+                objects.append(object)
+            }
+        }
+        return objects
     }
 
     public static func createNew() -> T {
