@@ -13,13 +13,17 @@ public protocol HasID {
     var id: String { get set }
 }
 
+public protocol HasAPIName {
+    static var apiName: String { get }
+}
+
 public protocol Parseable {
     func parse(data: [String: Any])
 }
 
-public protocol FetchOrCreatable: class, HasID, Parseable {
+public protocol FetchOrCreatable: class, HasID, HasAPIName, Parseable {
 
-    associatedtype T: NSManagedObject, HasID, Parseable
+    associatedtype T: NSManagedObject, HasID, HasAPIName, Parseable
     static func fetch(with ID: String) -> T?
     static func fetchOrCreate(with dict: [String: Any]) -> T?
     static func fetchOrCreate(with ID: String) -> T
@@ -67,7 +71,9 @@ public extension FetchOrCreatable {
         var objects: [T] = []
         guard let dict = data as? [String: Any], let objectsDict = dict["objects"] as? [String: Any] else { return [] }
         for (_, value) in objectsDict {
-            guard let objectDict = value as? [String: Any] else { continue }
+            guard let objectDict = value as? [String: Any],
+                let type = objectDict["type"] as? String,
+                type == self.apiName else { continue }
             if let object = self.fetchOrCreate(with: objectDict) {
                 objects.append(object)
             }
