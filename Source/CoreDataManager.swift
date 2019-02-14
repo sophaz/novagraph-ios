@@ -91,7 +91,8 @@ extension CoreDataManager {
         if let object: Entity = self.fetch(id: ID) {
             return object
         } else {
-            let newT = NSEntityDescription.insertNewObject(forEntityName: typeString, into: CoreDataManager.shared.context) as! Entity
+            let newT = NSEntityDescription.insertNewObject(forEntityName: typeString,
+                                                           into: CoreDataManager.shared.context) as! Entity
             newT.id = ID
             return newT
         }
