@@ -53,7 +53,6 @@ public class CoreDataManager: NSObject {
         url.appendPathExtension("sqlite")
         try? FileManager.default.removeItem(at: url)
     }
-
 }
 
 extension CoreDataManager {
@@ -65,59 +64,51 @@ extension CoreDataManager {
         return newT
     }
 
-    public static func createNew<T>(typeString: String) -> T {
-        let newT = NSEntityDescription.insertNewObject(forEntityName: typeString,
-                                                       into: CoreDataManager.shared.context) as! T
-        return newT
+    public static func fetch<T: NSManagedObject>(id: String) -> T? {
+        let className = String(String(describing: T.self).split(separator: ".").first ?? "")
+        return self.fetch(entity: className, id: id) as? T
     }
 
-    public static func fetch<T>(id: String) -> T? {
-        return self.fetch(type: T.self, id: id)
-    }
-
-    public static func fetch<T>(type: T.Type, id: String) -> T? {
-        let className = String(describing: T.self).split(separator: ".").first ?? ""
-        let request = NSFetchRequest<Entity>(entityName: String(className))
-        request.predicate = NSPredicate(format: "id == %@", id)
-        let context = CoreDataManager.shared.context
-        let fetchedObjects = try! context?.fetch(request)
-        if let first = fetchedObjects?.first {
-            return first as? T
-        }
-        return nil
-    }
-
-    public static func fetchOrCreate(typeString: String, with ID: String) -> Entity {
-        if let object: Entity = self.fetch(id: ID) {
+    public static func fetchOrCreate<T: NSManagedObject & HasID>(id: String) -> T {
+        if let object = self.fetch(id: id) as? T {
             return object
         } else {
-            let newT = NSEntityDescription.insertNewObject(forEntityName: typeString,
-                                                           into: CoreDataManager.shared.context) as! Entity
-            newT.id = ID
+            let className = String(String(describing: T.self).split(separator: ".").first ?? "")
+            var newT = NSEntityDescription.insertNewObject(forEntityName: className,
+                                                           into: CoreDataManager.shared.context) as! T
+            newT.id = id
             return newT
         }
     }
 
-    public static func fetchOrCreate(typeString: String, with dict: [String: Any]) -> Entity? {
-        if let id = dict["id"] as? String {
-            let object = self.fetchOrCreate(typeString: typeString, with: id)
-            object.parse(dict: dict)
-            return object
+    public static func fetchOrCreate(dict: [String: Any]) -> NSManagedObject? {
+        if let id = dict["id"] as? String, let type = dict["type"] as? String {
+            let entityString = type.capitalized
+            if let object = CoreDataManager.fetch(entity: entityString, id: id) as? NSManagedObject & Parseable {
+                object.parse(data: dict)
+                return object
+            }
         }
         return nil
     }
 
-    public static func fetchOrCreateObjects(from data: Any?) -> [Entity] {
+    public static func fetchOrCreateObjects(from data: Any?) -> [NSManagedObject] {
         guard let dict = data as? [String: Any], let objectsDict = dict["objects"] as? [String: Any] else { return [] }
-        var objects: [Entity] = []
+        var objects: [NSManagedObject] = []
         for (_, value) in objectsDict {
-            guard let objectDict = value as? [String: Any],
-                let type = objectDict["type"] as? String else { continue }
-            if let object = self.fetchOrCreate(typeString: type.capitalized, with: objectDict) {
+            guard let objectDict = value as? [String: Any] else { continue }
+            if let object = CoreDataManager.fetchOrCreate(dict: objectDict) {
                 objects.append(object)
             }
         }
         return objects
     }
 
+    private static func fetch(entity: String, id: String) -> NSManagedObject? {
+        let request = NSFetchRequest<NSManagedObject>(entityName: entity)
+        request.predicate = NSPredicate(format: "id == %@", id)
+        let context = CoreDataManager.shared.context
+        let fetchedObjects = try! context?.fetch(request)
+        return fetchedObjects?.first
+    }
 }
