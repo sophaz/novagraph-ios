@@ -41,12 +41,12 @@ public class Novanet {
     public func send(request: NovaRequest, completion: ((Any?, Error?) -> Void)?) {
         var request = request
         if request.requiresAuth {
-            CognitoService.shared?.currentAccessToken({ (token) in
+            CognitoService.shared?.currentAccessToken({ (token, error)  in
                 guard let accessToken = token else {
                     completion?(nil, NSError())
                     return
                 }
-                request.headers["X-Token"] = accessToken.tokenString
+                request.headers["X-Token"] = token
                 self.sendAlamo(request: request, completion: { (value, error) in
                     completion?(value, error)
                 })

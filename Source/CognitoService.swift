@@ -9,101 +9,75 @@ import AWSCognito
 import AWSCognitoAuth
 import AWSCognitoIdentityProvider
 
-public struct ServerConfigurationDetails {
-    let AWSRegion: AWSRegionType
-    let CognitoClientID: String
-    let CognitoClientSecret: String
-    let CognitoPoolID: String
-    let AWSCognitoPoolKey: String
-
-    public init(AWSRegion: AWSRegionType,
-                CognitoClientID: String, CognitoClientSecret: String,
-                CognitoPoolID: String, AWSCognitoPoolKey: String) {
-        self.AWSRegion = AWSRegion
-        self.CognitoClientID = CognitoClientID
-        self.CognitoClientSecret = CognitoClientSecret
-        self.CognitoPoolID = CognitoPoolID
-        self.AWSCognitoPoolKey = AWSCognitoPoolKey
-    }
+public protocol CognitoConfigurationProtocol {
+    var IdentityPoolID: String { get }
+    var AWSAccountID: String { get }
+    var AWSCognitoKey: String { get }
+    var AWSRegion: AWSRegionType { get }
 }
 
-public struct AuthConfigurationDetails {
-    let scopes: Set<String>
-    let signInRedirectUri: String
-    let signOutRedirectUri: String
-    let webDomain: String
-    let AWSCognitoAuthKey: String
-
-    public init(scopes: Set<String>, signInRedirectUri: String, signOutRedirectUri: String,
-                webDomain: String, AWSCognitoAuthKey: String) {
-        self.scopes = scopes
-        self.signInRedirectUri = signInRedirectUri
-        self.signOutRedirectUri = signOutRedirectUri
-        self.webDomain = webDomain
-        self.AWSCognitoAuthKey = AWSCognitoAuthKey
-    }
+public protocol IdentityProviderProtocol: AWSIdentityProviderManager {
+    func loginDict() -> [String: String]?
 }
 
 public class CognitoService {
-    public static let shared = CognitoService()
+    public private(set) static var shared: CognitoService!
 
-    public let pool: AWSCognitoIdentityUserPool
+    private let identityProvider: IdentityProviderProtocol
+    private let credentialsProvider: AWSCognitoCredentialsProvider
+    private let serverConfiguration: CognitoConfigurationProtocol
+    private let identity: AWSCognitoIdentity
+    private static let IdentityPoolUserIDKey = "IDENTITY_POOL_USER_ID_KEY"
 
-    public var fbAuth: AWSCognitoAuth?
-    public var googleAuth: AWSCognitoAuth?
+    public static func setup(with identityProvider: IdentityProviderProtocol,
+                             serverConfiguration: CognitoConfigurationProtocol) {
+        CognitoService.shared = CognitoService(identityProvider: identityProvider,
+                                               serverConfiguration: serverConfiguration)
+    }
 
-    // User must set these before accessing the singleton to configure pool
-    public static var serverConfigDetails: ServerConfigurationDetails?
-    // User can optionally set these to configure FB/Google auth
-    public static var fbConfigDetails: AuthConfigurationDetails?
-    public static var googleConfigDetails: AuthConfigurationDetails?
+    private init?(identityProvider: IdentityProviderProtocol,
+                  serverConfiguration: CognitoConfigurationProtocol) {
+        self.identityProvider = identityProvider
+        self.serverConfiguration = serverConfiguration
+        credentialsProvider = AWSCognitoCredentialsProvider(regionType: serverConfiguration.AWSRegion,
+                                                            identityPoolId: serverConfiguration.IdentityPoolID,
+                                                            identityProviderManager: identityProvider)
+        let identityConfiguration = AWSServiceConfiguration(region: serverConfiguration.AWSRegion,
+                                                            credentialsProvider: credentialsProvider)!
+        AWSCognitoIdentity.register(with: identityConfiguration, forKey: serverConfiguration.AWSCognitoKey)
+        identity = AWSCognitoIdentity(forKey: serverConfiguration.AWSCognitoKey)
+    }
 
-    private init?() {
-        guard let serverDetails = CognitoService.serverConfigDetails else { return nil }
-
-        let serviceConfig = AWSServiceConfiguration(region: serverDetails.AWSRegion, credentialsProvider: nil)
-        let poolConfig = AWSCognitoIdentityUserPoolConfiguration(clientId: serverDetails.CognitoClientID,
-                                                                 clientSecret: serverDetails.CognitoClientSecret,
-                                                                 poolId: serverDetails.CognitoPoolID)
-        AWSCognitoIdentityUserPool.register(with: serviceConfig,
-                                            userPoolConfiguration: poolConfig,
-                                            forKey: serverDetails.AWSCognitoPoolKey)
-        self.pool = AWSCognitoIdentityUserPool(forKey: serverDetails.AWSCognitoPoolKey)
-
-        if let fbDetails = CognitoService.fbConfigDetails {
-            let fbConfig = AWSCognitoAuthConfiguration(appClientId: serverDetails.CognitoClientID,
-                                                            appClientSecret: serverDetails.CognitoClientSecret,
-                                                            scopes: fbDetails.scopes,
-                                                            signInRedirectUri: fbDetails.signInRedirectUri,
-                                                            signOutRedirectUri: fbDetails.signOutRedirectUri,
-                                                            webDomain: fbDetails.webDomain,
-                                                            identityProvider: "Facebook",
-                                                            idpIdentifier: nil,
-                                                            userPoolIdForEnablingASF: serverDetails.CognitoPoolID)
-            AWSCognitoAuth.registerCognitoAuth(with: fbConfig, forKey: fbDetails.AWSCognitoAuthKey)
-            self.fbAuth = AWSCognitoAuth(forKey: fbDetails.AWSCognitoAuthKey)
-        }
-
-        if let googleDetails = CognitoService.googleConfigDetails {
-            let config = AWSCognitoAuthConfiguration(appClientId: serverDetails.CognitoClientID,
-                                                       appClientSecret: serverDetails.CognitoClientSecret,
-                                                       scopes: googleDetails.scopes,
-                                                       signInRedirectUri: googleDetails.signInRedirectUri,
-                                                       signOutRedirectUri: googleDetails.signOutRedirectUri,
-                                                       webDomain: googleDetails.webDomain,
-                                                       identityProvider: "Google",
-                                                       idpIdentifier: nil,
-                                                       userPoolIdForEnablingASF: serverDetails.CognitoPoolID)
-            AWSCognitoAuth.registerCognitoAuth(with: config, forKey: googleDetails.AWSCognitoAuthKey)
-            self.fbAuth = AWSCognitoAuth(forKey: googleDetails.AWSCognitoAuthKey)
+    public func currentAccessToken(_ completionHandler: @escaping (String?, Error?) -> Void) {
+        if let identityId = UserDefaults.standard.string(forKey: CognitoService.IdentityPoolUserIDKey) {
+            let openIdInput = self.openIdInput(identityId: identityId)
+            self.identity.getOpenIdToken(openIdInput).continueWith(block: { (response) -> Any? in
+                if let result = response.result {
+                    completionHandler(result.token, response.error)
+                } else {
+                    completionHandler(nil, response.error)
+                }
+                return nil
+            })
+        } else {
+            completionHandler(nil, nil)
         }
     }
 
-    public func currentAccessToken(_ completionHandler: @escaping (AWSCognitoIdentityUserSessionToken?) -> Void) {
-        if let session = self.pool.currentUser()?.getSession() {
-            session.continueWith { (session) -> Any? in
-                completionHandler(session.result?.accessToken)
-            }
-        }
+    // MARK: - Private
+
+    private func idInput() -> AWSCognitoIdentityGetIdInput {
+        let idInput = AWSCognitoIdentityGetIdInput()!
+        idInput.accountId = serverConfiguration.AWSAccountID
+        idInput.identityPoolId = serverConfiguration.IdentityPoolID
+        idInput.logins = identityProvider.loginDict()
+        return idInput
+    }
+
+    private func openIdInput(identityId: String) -> AWSCognitoIdentityGetOpenIdTokenInput {
+        let openIDInput = AWSCognitoIdentityGetOpenIdTokenInput()!
+        openIDInput.identityId = identityId
+        openIDInput.logins = identityProvider.loginDict()
+        return openIDInput
     }
 }
