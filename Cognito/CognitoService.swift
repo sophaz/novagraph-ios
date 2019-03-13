@@ -50,7 +50,7 @@ public class CognitoService {
         identity = AWSCognitoIdentity(forKey: serverConfiguration.AWSCognitoKey)
     }
 
-    func signInToIdentityPool(completionHandler: @escaping (String?, Error?) -> Void) {
+    public func signInToIdentityPool(completionHandler: @escaping (String?, Error?) -> Void) {
         credentialsProvider.clearKeychain()
         self.getIDInput { (input) in
             self.identity.getId(input).continueWith { (response) -> Any? in
@@ -64,9 +64,6 @@ public class CognitoService {
     }
 
     public func currentAccessToken(_ completionHandler: @escaping (String?, Error?) -> Void) {
-        if CognitoUserPoolService.shared.pool.currentUser()?.isSignedIn ?? false {
-
-        }
         if let identityId = UserDefaults.standard.string(forKey: CognitoService.IdentityPoolUserIDKey) {
             self.openIdInput(identityId: identityId) { openIdInput in
                 self.identity.getOpenIdToken(openIdInput).continueWith(block: { (response) -> Any? in
