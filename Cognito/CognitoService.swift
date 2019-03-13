@@ -95,12 +95,10 @@ public class CognitoService {
     private func openIdInput(identityId: String,
                              completionHandler: @escaping ((AWSCognitoIdentityGetOpenIdTokenInput) -> Void)) {
         identityProvider.getLoginDict { (loginDict) in
-            self.identityProvider.getLoginDict(completionHandler: { (loginDict) in
-                let openIDInput = AWSCognitoIdentityGetOpenIdTokenInput()!
-                openIDInput.identityId = identityId
-                openIDInput.logins = loginDict
-                completionHandler(openIDInput)
-            })
+            let openIDInput = AWSCognitoIdentityGetOpenIdTokenInput()!
+            openIDInput.identityId = identityId
+            openIDInput.logins = loginDict
+            completionHandler(openIDInput)
         }
     }
 }
