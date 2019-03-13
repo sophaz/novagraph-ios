@@ -20,6 +20,8 @@ public protocol IdentityProviderProtocol: AWSIdentityProviderManager {
     func loginDict() -> [String: String]?
 }
 
+/* This class represents a Cognito Identity Pool containing all of the
+   different login providers we support */
 public class CognitoService {
     public private(set) static var shared: CognitoService!
 
