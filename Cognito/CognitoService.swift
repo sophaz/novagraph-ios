@@ -17,11 +17,11 @@ public protocol CognitoConfigurationProtocol {
 }
 
 public protocol IdentityProviderProtocol: AWSIdentityProviderManager {
-    func loginDict() -> [String: String]?
+    func getLoginDict(completionHandler: @escaping (([String: String]?) -> Void))
 }
 
 /* This class represents a Cognito Identity Pool containing all of the
-   different login providers we support */
+ different login providers we support */
 public class CognitoService {
     public private(set) static var shared: CognitoService!
 
@@ -50,17 +50,34 @@ public class CognitoService {
         identity = AWSCognitoIdentity(forKey: serverConfiguration.AWSCognitoKey)
     }
 
-    public func currentAccessToken(_ completionHandler: @escaping (String?, Error?) -> Void) {
-        if let identityId = UserDefaults.standard.string(forKey: CognitoService.IdentityPoolUserIDKey) {
-            let openIdInput = self.openIdInput(identityId: identityId)
-            self.identity.getOpenIdToken(openIdInput).continueWith(block: { (response) -> Any? in
-                if let result = response.result {
-                    completionHandler(result.token, response.error)
-                } else {
-                    completionHandler(nil, response.error)
-                }
+    func signInToIdentityPool(completionHandler: @escaping (String?, Error?) -> Void) {
+        credentialsProvider.clearKeychain()
+        self.getIDInput { (input) in
+            self.identity.getId(input).continueWith { (response) -> Any? in
+                UserDefaults.standard.set(response.result?.identityId, forKey: CognitoService.IdentityPoolUserIDKey)
+                self.currentAccessToken({ (tokenString, error) in
+                    completionHandler(tokenString, error)
+                })
                 return nil
-            })
+            }
+        }
+    }
+
+    public func currentAccessToken(_ completionHandler: @escaping (String?, Error?) -> Void) {
+        if CognitoUserPoolService.shared.pool.currentUser()?.isSignedIn ?? false {
+
+        }
+        if let identityId = UserDefaults.standard.string(forKey: CognitoService.IdentityPoolUserIDKey) {
+            self.openIdInput(identityId: identityId) { openIdInput in
+                self.identity.getOpenIdToken(openIdInput).continueWith(block: { (response) -> Any? in
+                    if let result = response.result {
+                        completionHandler(result.token, response.error)
+                    } else {
+                        completionHandler(nil, response.error)
+                    }
+                    return nil
+                })
+            }
         } else {
             completionHandler(nil, nil)
         }
@@ -68,18 +85,25 @@ public class CognitoService {
 
     // MARK: - Private
 
-    private func idInput() -> AWSCognitoIdentityGetIdInput {
-        let idInput = AWSCognitoIdentityGetIdInput()!
-        idInput.accountId = serverConfiguration.AWSAccountID
-        idInput.identityPoolId = serverConfiguration.IdentityPoolID
-        idInput.logins = identityProvider.loginDict()
-        return idInput
+    private func getIDInput(completionHandler: @escaping ((AWSCognitoIdentityGetIdInput) -> Void)) {
+        identityProvider.getLoginDict { (loginDict) in
+            let idInput = AWSCognitoIdentityGetIdInput()!
+            idInput.accountId = self.serverConfiguration.AWSAccountID
+            idInput.identityPoolId = self.serverConfiguration.IdentityPoolID
+            idInput.logins = loginDict
+            completionHandler(idInput)
+        }
     }
 
-    private func openIdInput(identityId: String) -> AWSCognitoIdentityGetOpenIdTokenInput {
-        let openIDInput = AWSCognitoIdentityGetOpenIdTokenInput()!
-        openIDInput.identityId = identityId
-        openIDInput.logins = identityProvider.loginDict()
-        return openIDInput
+    private func openIdInput(identityId: String,
+                             completionHandler: @escaping ((AWSCognitoIdentityGetOpenIdTokenInput) -> Void)) {
+        identityProvider.getLoginDict { (loginDict) in
+            self.identityProvider.getLoginDict(completionHandler: { (loginDict) in
+                let openIDInput = AWSCognitoIdentityGetOpenIdTokenInput()!
+                openIDInput.identityId = identityId
+                openIDInput.logins = loginDict
+                completionHandler(openIDInput)
+            })
+        }
     }
 }
