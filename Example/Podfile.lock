@@ -9,7 +9,7 @@ PODS:
     - AWSCore (= 2.8.4)
   - AWSCognitoIdentityProviderASF (1.0.1)
   - AWSCore (2.8.4)
-  - Novagraph (1.1.2):
+  - Novagraph (1.1.8):
     - Alamofire
     - AWSCognito (~> 2.8.2)
     - AWSCognitoAuth (~> 2.8.2)
@@ -41,7 +41,7 @@ SPEC CHECKSUMS:
   AWSCognitoIdentityProvider: ba1858e7524b29254172ae333e1f96ddc93507dc
   AWSCognitoIdentityProviderASF: f94f1a502e72ef3d0a1de93e10bf7a79c8698118
   AWSCore: 734b0d67c2c77f6edae9e5520431a37310ea4193
-  Novagraph: c81f5349b3de7d358de5daf8c05e1aaacbcb09bd
+  Novagraph: f00755a3b75a06b4c71940070198262568c58370
 
 PODFILE CHECKSUM: b4a550862164c52dc014751a729d3e2f7712bb81
 

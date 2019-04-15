@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Novagraph'
-  s.version          = '1.1.7'
+  s.version          = '1.1.8'
   s.summary          = 'Utilies to access Novagraph and work with using Core Data.'
 
 # This description is used to generate tags and improve search results.
@@ -29,7 +29,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '10.0'
 
-  s.source_files = 'Source/**', 'Cognito/**'
+  s.source_files = 'Source/**', 'Cognito/**', 'Helpers/**'
   
   # s.resource_bundles = {
   #   'Novagraph' => ['Novagraph/Assets/*.png']
