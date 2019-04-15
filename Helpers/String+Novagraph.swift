@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension String {
+public extension String {
     func convertFromOpenIdToData() -> [String: Any]? {
         let splits = self.split(separator: ".")
         if splits.count > 1 {
